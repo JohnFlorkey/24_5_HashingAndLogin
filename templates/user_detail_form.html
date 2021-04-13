@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>User Detail</title>
+{% endblock%}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="col-md-6 col-lg-4 ">
+            Username: {{user.username}} <br>
+            Email: {{user.email}} <br>
+            First Name: {{user.first_name}} <br>
+            Last Name: {{user.last_name}}
+        </div>
+    </div>
+{% endblock %}
