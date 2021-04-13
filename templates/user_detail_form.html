@@ -13,4 +13,10 @@
             Last Name: {{user.last_name}}
         </div>
     </div>
+    <div>
+        {% for feedback in user.feedback %}
+            <p>{{feedback.title}}</p>
+            <p>{{feedback.content}}</p>
+        {% endfor %}
+    </div>
 {% endblock %}
