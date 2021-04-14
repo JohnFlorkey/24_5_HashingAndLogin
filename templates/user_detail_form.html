@@ -11,12 +11,19 @@
             Email: {{user.email}} <br>
             First Name: {{user.first_name}} <br>
             Last Name: {{user.last_name}}
-        </div>
+            <br>
+            <br>
+            {% for feedback in user.feedback %}
+            <a href="/feedback/{{feedback.id}}/update">{{feedback.title}}</a>
+            <button formaction="/feedback/{{feedback.id}}/delete" formmethod="post" class="btn btn-danger btn-sm">X</button>
+            {% endfor %}
+            <br>
+            <br>
+            <form action="/users/{{user.username}}">
+                <a href="/user/{{user.username}}/feedback/add" class="btn btn-primary btn-sm">Add Feedback</a>
+                <button formaction="/users/{{user.username}}/delete" formmethod="post" class="btn btn-danger btn-sm">Delete User</button>
+            </form>
+         </div>
     </div>
-    <div>
-        {% for feedback in user.feedback %}
-            <p>{{feedback.title}}</p>
-            <p>{{feedback.content}}</p>
-        {% endfor %}
-    </div>
+
 {% endblock %}

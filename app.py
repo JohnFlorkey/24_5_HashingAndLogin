@@ -1,7 +1,8 @@
 from flask import Flask, redirect, render_template, session, flash
-from models import db, connect_db, User
+from models import db, connect_db, User, Feedback
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserForm, LoginForm
+from utilities import is_authorized
 
 
 app = Flask(__name__)
@@ -61,35 +62,47 @@ def login():
         return render_template('login_form.html', form=form)
 
 
-@app.route('/users/<username>', methods=['GET'])
-def user_detail(username):
-    if 'username' not in session or username != session['username']:
-        flash("You must be logged in to view!")
-
-        return redirect('/login')
-    else:
-        user = User.query.filter_by(username=username).first()
-        user_no_pwd = {
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name
-        }
-
-        return render_template('user_detail_form.html', user=user_no_pwd)
-
-
-@app.route('/secret', methods=['GET'])
-def secret():
-    if 'username' not in session:
-        flash("You must be logged in to view!")
-        return redirect('/login')
-    else:
-        return render_template('secret.html')
-
-
 @app.route('/logout', methods=['GET'])
 def logout():
     if 'username' in session:
         session.pop('username')
     return redirect('/')
+
+
+@app.route('/users/<username>', methods=['GET'])
+def user_detail(username):
+    if is_authorized(username):
+        user = User.query.filter_by(username=username).first()
+        user_no_pwd = {
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'feedback': user.feedback
+        }
+        return render_template('user_detail_form.html', user=user_no_pwd)
+    else:
+        flash("You must be logged in to view!")
+        return redirect('/login')
+
+
+@app.route('/users/<username>/delete', methods=['POST'])
+def delete_user(username):
+    if is_authorized(username):
+        user = User.query.filter_by(username=username).first()
+        db.session.delete(user)
+        db.session.commit()
+
+        return redirect('/register')
+    else:
+        flash("You must be logged in to view!")
+        return redirect('/login')
+
+
+# @app.route('/secret', methods=['GET'])
+# def secret():
+#     if 'username' not in session:
+#         flash("You must be logged in to view!")
+#         return redirect('/login')
+#     else:
+#         return render_template('secret.html')
