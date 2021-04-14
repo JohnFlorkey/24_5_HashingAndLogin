@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, session, flash
 from models import db, connect_db, User, Feedback
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import UserForm, LoginForm
+from forms import UserForm, LoginForm, AddFeedback
 from utilities import is_authorized
 
 
@@ -92,11 +92,69 @@ def delete_user(username):
         user = User.query.filter_by(username=username).first()
         db.session.delete(user)
         db.session.commit()
-
+        logout()
         return redirect('/register')
     else:
         flash("You must be logged in to view!")
         return redirect('/login')
+
+
+@app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
+def add_feedback(username):
+    if is_authorized(username):
+        form = AddFeedback()
+        if form.validate_on_submit():
+            new_feedback = Feedback(
+                title=form.title.data,
+                content=form.content.data,
+                username=username)
+            db.session.add(new_feedback)
+            db.session.commit()
+            return redirect(f'/users/{username}')
+        else:
+            return render_template('add_feedback_form.html', form=form, username=username)
+    else:
+        flash("You must be logged in to view!")
+        return redirect('/login')
+
+
+@app.route('/feedback/<int:feedback_id>/update', methods=['GET', 'POST'])
+def update_feedback(feedback_id):
+    feedback = Feedback.query.get_or_404(feedback_id)
+    if is_authorized(feedback.username):
+        form = AddFeedback(obj=feedback)
+        if form.validate_on_submit():
+            feedback.title = form.title.data,
+            feedback.content = form.content.data
+
+            db.session.commit()
+            return redirect(f'/users/{feedback.username}')
+        else:
+            return render_template('update_feedback_form.html', form=form, feedback=feedback)
+    else:
+        flash("You must be logged in to view!")
+        return redirect('/login')
+
+
+@app.route('/feedback/<int:feedback_id>/delete', methods=['POST'])
+def delete_feedback(feedback_id):
+    import pdb
+    pdb.set_trace()
+    feedback = Feedback.query.get_or_404(feedback_id)
+    if is_authorized(feedback.username):
+        db.session.delete(feedback)
+        db.session.commit()
+        return redirect(f'/users/{feedback.username}')
+    else:
+        user = User.query.filter_by(username=feedback.username).first()
+        user_no_pwd = {
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'feedback': user.feedback
+        }
+        return render_template('user_detail_form.html', user=user_no_pwd)
 
 
 # @app.route('/secret', methods=['GET'])

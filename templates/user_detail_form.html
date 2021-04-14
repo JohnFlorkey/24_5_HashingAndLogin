@@ -14,13 +14,15 @@
             <br>
             <br>
             {% for feedback in user.feedback %}
-            <a href="/feedback/{{feedback.id}}/update">{{feedback.title}}</a>
-            <button formaction="/feedback/{{feedback.id}}/delete" formmethod="post" class="btn btn-danger btn-sm">X</button>
+            <form action="/users/{{user.username}}">
+                <a href="/feedback/{{feedback.id}}/update">{{feedback.title}}</a>
+                <button formaction="/feedback/{{feedback.id}}/delete" formmethod="post" class="btn btn-danger btn-sm">X</button><br>
+            </form>
             {% endfor %}
             <br>
             <br>
             <form action="/users/{{user.username}}">
-                <a href="/user/{{user.username}}/feedback/add" class="btn btn-primary btn-sm">Add Feedback</a>
+                <a href="/users/{{user.username}}/feedback/add" class="btn btn-primary btn-sm">Add Feedback</a>
                 <button formaction="/users/{{user.username}}/delete" formmethod="post" class="btn btn-danger btn-sm">Delete User</button>
             </form>
          </div>
